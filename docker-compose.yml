@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: erdemo
+      POSTGRES_USER: erdemo
+      POSTGRES_PASSWORD: erdemo
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d:ro
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erdemo -d erdemo"]
+      interval: 3s
+      retries: 20
+
+  api:
+    build: ./api
+    # Settings: Resend key and sender (sign-in codes by email), and whether Sample people show
+    env_file:
+      - yousr-settings.env
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/erdemo
+      DB_USER: erdemo
+      DB_PASSWORD: erdemo
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: ./web
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
+volumes:
+  dbdata:
