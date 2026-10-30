@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Yousr · set up</title>
+<style>body{font-family:Arial,sans-serif;max-width:460px;margin:12vh auto;padding:0 20px;color:#1c1b1a}h1{font-family:Georgia,serif;font-weight:600}
+button{background:#111;color:#fff;border:0;border-radius:12px;padding:12px 18px;font-size:15px;cursor:pointer}button:disabled{background:#999}p{line-height:1.5}#m{margin-top:16px}</style></head>
+<body><h1>Set up the Yousr database</h1>
+<p>Run this once, after the screens are online. It fills the empty database with everything Yousr needs. If the database is already set up, it changes nothing.</p>
+<button id="b">Set up the database</button><p id="m"></p>
+<script>
+const API = 'https://ohtzshturionoafkxtep.supabase.co/functions/v1/setup';
+document.getElementById('b').onclick = async () => {
+  const b = document.getElementById('b'), m = document.getElementById('m');
+  b.disabled = true; m.textContent = 'Working… this takes about a minute.';
+  try {
+    const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ from: location.origin }) });
+    const d = await r.json(); m.textContent = d.message || 'Done.';
+    if (d.done) { const a = document.createElement('a'); a.href = '/'; a.textContent = 'Go to Yousr'; m.append(' ', a); }
+  } catch (e) { m.textContent = 'Could not reach Supabase. Try again in a minute.'; }
+  b.disabled = false;
+};
+</script></body></html>
